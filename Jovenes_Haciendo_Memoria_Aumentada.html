@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jóvenes haciendo memoria | Aumentada</title>
+
+    <!-- Librerías de realidad aumentada -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+        :root {
+            --negro: #101010;
+            --negro-suave: #171717;
+            --blanco: #f5f5f5;
+            --gris: #727272;
+            --celeste: #00E6FF;
+            --rosa: #FF73EF;
+            --amarillo: #FAFF45;
+            --verde: #BCFF2E;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--negro);
+            color: var(--blanco);
+            line-height: 1.6;
+        }
+
+        /* ENCABEZADO */
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 22px 8%;
+            border-bottom: 1px solid #333;
+            background: rgba(16, 16, 16, .96);
+        }
+
+        .logo {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .logo span {
+            color: var(--celeste);
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+        }
+
+        nav a {
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color .2s;
+        }
+
+        nav a:nth-child(1):hover {
+            color: var(--celeste);
+        }
+
+        nav a:nth-child(2):hover {
+            color: var(--rosa);
+        }
+
+        nav a:nth-child(3):hover {
+            color: var(--amarillo);
+        }
+
+        /* PORTADA */
+
+        .principal {
+            min-height: 75vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 70px 20px;
+            background:
+                radial-gradient(ellipse at 18% 25%, rgba(0, 230, 255, .13), transparent 32%),
+                radial-gradient(ellipse at 82% 70%, rgba(255, 115, 239, .12), transparent 34%),
+                radial-gradient(circle at center, #202020 0%, var(--negro) 68%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .principal::before,
+        .principal::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 5px;
+            border-radius: 10px;
+            opacity: .9;
+            transform: rotate(-35deg);
+        }
+
+        .principal::before {
+            background: var(--amarillo);
+            top: 18%;
+            left: 8%;
+            box-shadow: 0 15px 0 var(--verde);
+        }
+
+        .principal::after {
+            background: var(--rosa);
+            right: 8%;
+            bottom: 20%;
+            box-shadow: 0 15px 0 var(--celeste);
+        }
+
+        .etiqueta {
+            color: var(--celeste);
+            border: 1px solid var(--celeste);
+            padding: 9px 20px;
+            border-radius: 30px;
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: clamp(36px, 7vw, 76px);
+            line-height: 1.1;
+            letter-spacing: 3px;
+            max-width: 950px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 span {
+            background: linear-gradient(
+                90deg,
+                var(--celeste),
+                var(--rosa),
+                var(--amarillo),
+                var(--verde)
+            );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitulo {
+            color: #c5c5c5;
+            font-size: 17px;
+            max-width: 620px;
+            line-height: 1.8;
+            margin: 25px 0 35px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* BOTONES */
+
+        .boton {
+            display: inline-block;
+            background: var(--amarillo);
+            color: #101010;
+            text-decoration: none;
+            padding: 15px 28px;
+            border: 0;
+            border-radius: 5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .25s;
+        }
+
+        .boton:hover {
+            background: var(--celeste);
+            transform: translateY(-3px);
+        }
+
+        .boton:disabled {
+            opacity: .7;
+            cursor: wait;
+            transform: none;
+        }
+
+        /* INFORMACIÓN DEL PROYECTO */
+
+        .informacion {
+            padding: 80px 10%;
+            text-align: center;
+        }
+
+        .informacion h2,
+        .logos h2,
+        #realidad-aumentada h2 {
+            font-size: clamp(24px, 4vw, 32px);
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+
+        .informacion h2 span {
+            color: var(--rosa);
+        }
+
+        .informacion > p {
+            color: #aaa;
+            max-width: 720px;
+            margin: auto;
+            line-height: 1.8;
+        }
+
+        /* TARJETAS */
+
+        .tarjetas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 45px;
+        }
+
+        .tarjeta {
+            background: #1b1b1b;
+            border: 1px solid #393939;
+            border-radius: 10px;
+            padding: 30px 20px;
+            transition: .25s;
+        }
+
+        .tarjeta:nth-child(1) {
+            border-top: 3px solid var(--celeste);
+        }
+
+        .tarjeta:nth-child(2) {
+            border-top: 3px solid var(--rosa);
+        }
+
+        .tarjeta:nth-child(3) {
+            border-top: 3px solid var(--verde);
+        }
+
+        .tarjeta:hover {
+            transform: translateY(-5px);
+            background: #202020;
+        }
+
+        .numero {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .tarjeta:nth-child(1) .numero {
+            color: var(--celeste);
+        }
+
+        .tarjeta:nth-child(2) .numero {
+            color: var(--rosa);
+        }
+
+        .tarjeta:nth-child(3) .numero {
+            color: var(--verde);
+        }
+
+        .tarjeta h3 {
+            margin-bottom: 10px;
+        }
+
+        .tarjeta p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* LOGOS INSTITUCIONALES */
+
+        .logos {
+            padding: 70px 8%;
+            text-align: center;
+            background: #151515;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+
+        .logos h2 span {
+            color: var(--amarillo);
+        }
+
+        .logos > p {
+            color: #aaa;
+            margin-bottom: 35px;
+        }
+
+        .contenedor-logos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            align-items: center;
+            gap: 18px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .logo-institucional {
+            min-height: 145px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: .25s;
+        }
+
+        .logo-institucional:nth-child(1) {
+            border-color: var(--celeste);
+        }
+
+        .logo-institucional:nth-child(2) {
+            border-color: var(--rosa);
+        }
+
+        .logo-institucional:nth-child(3) {
+            border-color: var(--amarillo);
+        }
+
+        .logo-institucional:nth-child(4) {
+            border-color: var(--verde);
+        }
+
+        .logo-institucional:nth-child(5) {
+            border-color: var(--gris);
+        }
+
+        .logo-institucional:nth-child(6) {
+            border-color: var(--celeste);
+        }
+
+        .logo-institucional:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo-institucional img {
+            display: block;
+            max-width: 100%;
+            max-height: 105px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* REALIDAD AUMENTADA */
+
+        #realidad-aumentada {
+            padding: 70px 20px;
+            text-align: center;
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(188, 255, 46, .07), transparent 35%),
+                #121212;
+        }
+
+        #realidad-aumentada h2 {
+            color: var(--celeste);
+        }
+
+        #realidad-aumentada > p {
+            color: #ddd;
+            margin-bottom: 24px;
+        }
+
+        /* VISOR DE CÁMARA */
+
+        #visorRA {
+            display: none;
+            position: relative;
+            isolation: isolate;
+            width: min(700px, 100%);
+            height: 450px;
+            margin: 30px auto;
+            overflow: hidden;
+            background: #000;
+            border: 2px solid var(--rosa);
+            border-radius: 12px;
+        }
+
+        /* VIDEO DE LA CÁMARA */
+
+        #visorRA > video.video-camara {
+            position: absolute !important;
+            inset: 0 !important;
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            z-index: 0 !important;
+        }
+
+        /* ESCENA MINDAR */
+
+        #visorRA a-scene {
+            position: absolute !important;
+            inset: 0 !important;
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1 !important;
+            background: transparent !important;
+        }
+
+        #visorRA canvas,
+        #visorRA .a-canvas {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important;
+        }
+
+        /* VIDEO ASOCIADO AL PRIMER MARCADOR */
+
+        #videoGrupo01 {
+            display: none;
+            position: absolute;
+            z-index: 2;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-height: 82%;
+            object-fit: contain;
+            background: #000;
+            border: 2px solid var(--amarillo);
+            border-radius: 8px;
+        }
+
+        #estadoRA {
+            min-height: 26px;
+            color: var(--verde) !important;
+            margin-top: 15px;
+        }
+
+        /* PIE DE PÁGINA */
+
+        footer {
+            border-top: 1px solid #333;
+            padding: 30px 15px;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            background: #0b0b0b;
+        }
+
+        footer span {
+            color: var(--rosa);
+        }
+
+        /* ADAPTACIÓN A CELULARES */
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            nav {
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .principal {
+                min-height: 68vh;
+            }
+
+            .principal::before,
+            .principal::after {
+                width: 75px;
+            }
+
+            .informacion {
+                padding: 60px 7%;
+            }
+
+            #visorRA {
+                height: min(65vh, 450px);
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ENCABEZADO -->
+
+    <header>
+        <div class="logo">JÓVENES <span>/</span> MEMORIA</div>
+
+        <nav>
+            <a href="#inicio">Inicio</a>
+            <a href="#proyecto">Proyecto</a>
+            <a href="#realidad-aumentada">Experiencia</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- PORTADA -->
+
+        <section class="principal" id="inicio">
+
+            <div class="etiqueta">
+                EXPERIENCIA DE REALIDAD AUMENTADA
+            </div>
+
+            <h1>
+                JÓVENES HACIENDO<br>
+                <span>MEMORIA</span>
+            </h1>
+
+            <p class="subtitulo">
+                Una experiencia que conecta memoria, tecnología
+                y creatividad a través de la realidad aumentada.
+            </p>
+
+            <a href="#realidad-aumentada" class="boton">
+                DESCUBRIR EXPERIENCIA →
+            </a>
+
+        </section>
+
+        <!-- PROYECTO -->
+
+        <section class="informacion" id="proyecto">
+
+            <h2>MEMORIA <span>AMPLIFICADA</span></h2>
+
+            <p>
+                Jóvenes haciendo memoria, Aumentada es una propuesta
+                que utiliza la tecnología para crear nuevas formas
+                de explorar, compartir y experimentar contenidos
+                mediante la realidad aumentada.
+            </p>
+
+            <div class="tarjetas">
+
+                <div class="tarjeta">
+                    <div class="numero">01</div>
+                    <h3>Memoria</h3>
+                    <p>
+                        Una invitación a conocer y mantener viva la memoria.
+                    </p>
+                </div>
+
+                <div class="tarjeta">
+                    <div class="numero">02</div>
+                    <h3>Tecnología</h3>
+                    <p>
+                        Nuevas herramientas digitales para descubrir contenidos.
+                    </p>
+                </div>
+
+                <div class="tarjeta">
+                    <div class="numero">03</div>
+                    <h3>Experiencia</h3>
+                    <p>
+                        Una propuesta interactiva que combina creatividad
+                        y realidad aumentada.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- INSTITUCIONES -->
+
+        <section class="logos" id="instituciones">
+
+            <h2>INSTITUCIONES <span>PARTICIPANTES</span></h2>
+
+            <p>Una experiencia realizada en conjunto.</p>
+
+            <div class="contenedor-logos">
+
+                <div class="logo-institucional">
+                    <img
+                        src="./Imagenes/Logos/logo_unne.png"
+                        alt="Universidad Nacional del Nordeste">
+                </div>
+
+                <div class="logo-institucional">
+                    <img
+                        src="./Imagenes/Logos/logo_fadycc.png"
+                        alt="Facultad de Artes, Diseño y Ciencias de la Cultura">
+                </div>
+
+                <div class="logo-institucional">
+                    <img
+                        src="./Imagenes/Logos/logo_extension_universitaria.png"
+                        alt="Extensión Universitaria">
+                </div>
+
+                <div class="logo-institucional">
+                    <img
+                        src="./Imagenes/Logos/logo_accion_en_territorio.png"
+                        alt="Acción en Territorio">
+                </div>
+
+                <div class="logo-institucional">
+                    <img
+                        src="./Imagenes/Logos/logo_comision_provincial_memoria_chaco.png"
+                        alt="Comisión Provincial por la Memoria - Chaco">
+                </div>
+
+                <div class="logo-institucional">
+                    <img
+                        src="./Imagenes/Logos/logo_semiii.png"
+                        alt="Seminario III">
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- REALIDAD AUMENTADA -->
+
+        <section id="realidad-aumentada">
+
+            <h2>EXPERIENCIA DE REALIDAD AUMENTADA</h2>
+
+            <p>
+                Apuntá la cámara hacia nuestro marcador
+                para descubrir la experiencia.
+            </p>
+
+            <button id="iniciarRA" class="boton" type="button">
+                ACTIVAR CÁMARA
+            </button>
+
+            <div id="visorRA">
+
+                <a-scene
+                    id="escenaRA"
+                    mindar-image="
+                        imageTargetSrc: ./targets.mind;
+                        autoStart: false;
+                        uiLoading: no;
+                        uiScanning: no;
+                        uiError: no;
+                    "
+                    embedded
+                    renderer="alpha: true; colorManagement: true"
+                    vr-mode-ui="enabled: false"
+                    device-orientation-permission-ui="enabled: false">
+
+                    <a-camera
+                        position="0 0 0"
+                        look-controls="enabled: false">
+                    </a-camera>
+
+                    <!-- PRIMER MARCADOR -->
+
+                    <a-entity
+                        id="marcador"
+                        mindar-image-target="targetIndex: 0">
+                    </a-entity>
+
+                </a-scene>
+
+                <!-- VIDEO DEL PRIMER GRUPO -->
+
+                <video
+                    id="videoGrupo01"
+                    preload="auto"
+                    loop
+                    muted
+                    playsinline
+                    webkit-playsinline>
+
+                    <source
+                        src="/Imagenes/Videos/TPANISONIDO%20-%20Vestigia%20Silentium%20(1).mp4"
+                        type="video/mp4">
+
+                </video>
+
+            </div>
+
+            <p id="estadoRA" aria-live="polite">
+                La cámara todavía no está activada.
+            </p>
+
+        </section>
+
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+
+    <footer>
+
+        <p>
+            Jóvenes haciendo memoria, <span>Aumentada</span>
+        </p>
+
+        <p>
+            11 de noviembre · Casa de las Culturas
+        </p>
+
+    </footer>
+
+    <!-- JAVASCRIPT DE REALIDAD AUMENTADA -->
+
+    <script>
+
+        const botonRA = document.getElementById("iniciarRA");
+        const visorRA = document.getElementById("visorRA");
+        const estadoRA = document.getElementById("estadoRA");
+        const escenaRA = document.getElementById("escenaRA");
+        const marcador = document.getElementById("marcador");
+        const videoGrupo01 = document.getElementById("videoGrupo01");
+
+        let iniciado = false;
+
+        // ACTIVAR CÁMARA
+
+        botonRA.addEventListener("click", async function () {
+
+            if (iniciado) return;
+
+            try {
+
+                botonRA.disabled = true;
+
+                visorRA.style.display = "block";
+
+                estadoRA.textContent = "Preparando la cámara...";
+
+                if (!escenaRA.hasLoaded) {
+
+                    await new Promise((resolve, reject) => {
+
+                        escenaRA.addEventListener(
+                            "loaded",
+                            resolve,
+                            { once: true }
+                        );
+
+                        escenaRA.addEventListener(
+                            "error",
+                            reject,
+                            { once: true }
+                        );
+
+                    });
+
+                }
+
+                if (typeof escenaRA.resize === "function") {
+                    escenaRA.resize();
+                }
+
+                const sistemaRA =
+                    escenaRA.systems["mindar-image-system"];
+
+                if (!sistemaRA) {
+                    throw new Error("No se encontró el sistema MindAR.");
+                }
+
+                await sistemaRA.start();
+
+                // UBICAR EL VIDEO DE LA CÁMARA
+
+                const videoCamara = document.querySelector(
+                    "#visorRA video:not(#videoGrupo01)"
+                );
+
+                if (videoCamara) {
+
+                    visorRA.insertBefore(videoCamara, escenaRA);
+
+                    videoCamara.classList.add("video-camara");
+
+                }
+
+                escenaRA.style.position = "absolute";
+                escenaRA.style.inset = "0";
+                escenaRA.style.zIndex = "1";
+
+                if (typeof escenaRA.resize === "function") {
+                    escenaRA.resize();
+                }
+
+                iniciado = true;
+
+                botonRA.textContent = "CÁMARA ACTIVADA";
+
+                estadoRA.textContent =
+                    "¡Cámara activada! Buscando la imagen...";
+
+            } catch (error) {
+
+                console.error("Error de realidad aumentada:", error);
+
+                estadoRA.textContent =
+                    "No se pudo iniciar la cámara: " + error.message;
+
+                botonRA.disabled = false;
+
+            }
+
+        });
+
+        // INFORMACIÓN DEL VIDEO
+
+        videoGrupo01.addEventListener("loadedmetadata", function () {
+
+            console.log("VIDEO CARGADO");
+
+            console.log("Duración:", videoGrupo01.duration);
+
+            console.log("Formato:", videoGrupo01.currentSrc);
+
+        });
+
+        videoGrupo01.addEventListener("error", function () {
+
+            console.log("ERROR DEL VIDEO:", videoGrupo01.error);
+
+            console.log("Código:", videoGrupo01.error?.code);
+
+            console.log("Dirección:", videoGrupo01.currentSrc);
+
+        });
+
+        // CUANDO SE RECONOCE EL MARCADOR
+
+        marcador.addEventListener("targetFound", async function () {
+
+            estadoRA.textContent =
+                "¡Imagen reconocida! Cargando video...";
+
+            try {
+
+                videoGrupo01.style.display = "block";
+
+                videoGrupo01.muted = true;
+
+                if (videoGrupo01.readyState < 2) {
+
+                    await new Promise((resolve, reject) => {
+
+                        videoGrupo01.addEventListener(
+                            "canplay",
+                            resolve,
+                            { once: true }
+                        );
+
+                        videoGrupo01.addEventListener(
+                            "error",
+                            reject,
+                            { once: true }
+                        );
+
+                        videoGrupo01.load();
+
+                    });
+
+                }
+
+                videoGrupo01.currentTime = 0;
+
+                await videoGrupo01.play();
+
+                estadoRA.textContent =
+                    "¡Imagen reconocida! Reproduciendo el video.";
+
+            } catch (error) {
+
+                console.error(
+                    "Error al reproducir el video:",
+                    error
+                );
+
+                estadoRA.textContent =
+                    "Error: " + error.name + " - " + error.message;
+
+            }
+
+        });
+
+        // CUANDO SE PIERDE EL MARCADOR
+
+        marcador.addEventListener("targetLost", function () {
+
+            videoGrupo01.pause();
+
+            videoGrupo01.style.display = "none";
+
+            estadoRA.textContent = "Buscando la imagen...";
+
+        });
+
+    </script>
+
+</body>
+</html>
